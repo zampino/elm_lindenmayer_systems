@@ -7543,15 +7543,36 @@ Elm.Turtle.Advanced.make = function (_elm) {
                                         ,length: length
                                         ,depth: depth};
 };
-Elm.Main = Elm.Main || {};
-Elm.Main.make = function (_elm) {
+Elm.LSysConfig = Elm.LSysConfig || {};
+Elm.LSysConfig.make = function (_elm) {
    "use strict";
-   _elm.Main = _elm.Main || {};
-   if (_elm.Main.values) return _elm.Main.values;
+   _elm.LSysConfig = _elm.LSysConfig || {};
+   if (_elm.LSysConfig.values) return _elm.LSysConfig.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var rules = F2(function (list,config) {    return _U.update(config,{rules: A2($Basics._op["++"],config.rules,list)});});
+   var constants = F2(function (list,config) {    return _U.update(config,{constants: A2($Basics._op["++"],config.constants,list)});});
+   var axiom = F2(function (str,config) {    return _U.update(config,{axiom: str});});
+   var build = {axiom: "",constants: _U.list([]),rules: _U.list([]),actions: _U.list([])};
+   var LSysConfig = F4(function (a,b,c,d) {    return {axiom: a,constants: b,rules: c,actions: d};});
+   return _elm.LSysConfig.values = {_op: _op,build: build,axiom: axiom,constants: constants,rules: rules,LSysConfig: LSysConfig};
+};
+Elm.LSys = Elm.LSys || {};
+Elm.LSys.make = function (_elm) {
+   "use strict";
+   _elm.LSys = _elm.LSys || {};
+   if (_elm.LSys.values) return _elm.LSys.values;
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $Dict = Elm.Dict.make(_elm),
+   $LSysConfig = Elm.LSysConfig.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
@@ -7560,36 +7581,44 @@ Elm.Main.make = function (_elm) {
    $Turtle = Elm.Turtle.make(_elm),
    $Turtle$Advanced = Elm.Turtle.Advanced.make(_elm);
    var _op = {};
-   var initState = {position: {ctor: "_Tuple3",_0: 0.0,_1: 0.0,_2: 90.0},stack: _U.list([]),steps: _U.list([])};
-   var newDirection = F2(function (_p0,deg) {    var _p1 = _p0;return {ctor: "_Tuple3",_0: _p1._0,_1: _p1._1,_2: _p1._2 + deg};});
-   var newPose = function (_p2) {
-      var _p3 = _p2;
-      var _p5 = _p3._2;
-      var _p4 = $Basics.fromPolar({ctor: "_Tuple2",_0: 10.0,_1: $Basics.degrees(_p5)});
-      var xOffset = _p4._0;
-      var yOffset = _p4._1;
-      return {ctor: "_Tuple3",_0: _p3._0 + xOffset,_1: _p3._1 + yOffset,_2: _p5};
+   var mapCharToAction = F2(function (config,chr) {
+      var dict = $Dict.fromList(config.actions);
+      var _p0 = A2($Dict.get,chr,dict);
+      if (_p0.ctor === "Nothing") {
+            return _U.list([]);
+         } else {
+            return _p0._0;
+         }
+   });
+   var initState = {position: {ctor: "_Tuple3",_0: 0.0,_1: 0.0,_2: 90},stack: _U.list([]),steps: _U.list([])};
+   var newDirection = F2(function (_p1,deg) {    var _p2 = _p1;return {ctor: "_Tuple3",_0: _p2._0,_1: _p2._1,_2: _p2._2 + deg};});
+   var newPose = function (_p3) {
+      var _p4 = _p3;
+      var _p6 = _p4._2;
+      var _p5 = $Basics.fromPolar({ctor: "_Tuple2",_0: 10.0,_1: $Basics.degrees(_p6)});
+      var xOffset = _p5._0;
+      var yOffset = _p5._1;
+      return {ctor: "_Tuple3",_0: _p4._0 + xOffset,_1: _p4._1 + yOffset,_2: _p6};
    };
    var back = function (state) {
-      var _p6 = state.stack;
-      if (_p6.ctor === "[]") {
+      var _p7 = state.stack;
+      if (_p7.ctor === "[]") {
             return state;
          } else {
-            var _p8 = _p6._0;
-            var _p7 = _p8;
-            var x = _p7._0;
-            var y = _p7._1;
-            var angle = _p7._2;
+            var _p9 = _p7._0;
+            var _p8 = _p9;
+            var x = _p8._0;
+            var y = _p8._1;
+            var angle = _p8._2;
             return _U.update(state,
-            {stack: _p6._1
+            {stack: _p7._1
             ,steps: A2($Basics._op["++"],
             state.steps,
             _U.list([$Turtle.penUp,$Turtle$Advanced.teleport({ctor: "_Tuple2",_0: x,_1: y}),$Turtle.penDown,$Turtle$Advanced.rotateTo(angle)]))
-            ,position: _p8});
+            ,position: _p9});
          }
    };
    var action = F2(function (command,state) {
-      var _p9 = A2($Debug.log,"state",state);
       var _p10 = command;
       switch (_p10.ctor)
       {case "Push": return _U.update(state,{stack: A2($List._op["::"],state.position,state.stack)});
@@ -7600,65 +7629,97 @@ Elm.Main.make = function (_elm) {
          default: return _U.update(state,
            {steps: A2($Basics._op["++"],state.steps,_U.list([$Turtle.right(45)])),position: A2(newDirection,state.position,-45)});}
    });
-   var reduce = function (command_list) {    return A3($List.foldl,F2(function (c,acc) {    return A2(action,c,acc);}),initState,command_list);};
+   var reduce = function (cl) {    return A3($List.foldl,F2(function (c,acc) {    return A2(action,c,acc);}),initState,cl);};
+   var State = F3(function (a,b,c) {    return {position: a,stack: b,steps: c};});
+   var rules_and_constants = function (config) {
+      var rulify = function ($char) {    return {ctor: "_Tuple2",_0: $char,_1: $char};};
+      var rules = config.rules;
+      var pairs = A2($List.append,A2($List.map,rulify,config.constants),rules);
+      return $Dict.fromList(pairs);
+   };
+   var mapper = F2(function (config,chr) {
+      var _p11 = A2($Dict.get,chr,rules_and_constants(config));
+      if (_p11.ctor === "Just") {
+            return _p11._0;
+         } else {
+            return "";
+         }
+   });
+   var expand = F2(function (input,config) {
+      var inputList = A2($String.split,"",input);
+      var mappedList = A2($List.map,mapper(config),inputList);
+      return A2($String.join,"",mappedList);
+   });
+   var expand_times = F3(function (d,input,config) {
+      expand_times: while (true) {
+         var _p12 = d;
+         if (_p12 === 0) {
+               return input;
+            } else {
+               var _v7 = d - 1,_v8 = A2(expand,A2($Debug.log,"intermediate",input),config),_v9 = config;
+               d = _v7;
+               input = _v8;
+               config = _v9;
+               continue expand_times;
+            }
+      }
+   });
+   var iterate = F2(function (times,config) {
+      var expanded = A2($Debug.log,"expanded",A3(expand_times,times,config.axiom,config));
+      var splitted = A2($Debug.log,"splitted",A2($String.split,"",expanded));
+      var mapped = A2($Debug.log,"mapped",A2($List.map,mapCharToAction(config),splitted));
+      var command_list = $List.concat(mapped);
+      var final_state = reduce(command_list);
+      return final_state.steps;
+   });
+   var actions = F2(function (list,config) {    return _U.update(config,{actions: A2($Basics._op["++"],config.actions,list)});});
    var Push = {ctor: "Push"};
    var Pop = {ctor: "Pop"};
    var Right = {ctor: "Right"};
    var Left = {ctor: "Left"};
    var Forward = {ctor: "Forward"};
-   var mapCharToAction = function (chr) {
-      var _p11 = chr;
-      switch (_p11)
-      {case "0": return _U.list([Forward]);
-         case "1": return _U.list([Forward]);
-         case "[": return _U.list([Push,Left]);
-         case "]": return _U.list([Pop,Right]);
-         default: return _U.crashCase("Main",{start: {line: 115,column: 3},end: {line: 120,column: 27}},_p11)("doh");}
-   };
-   var State = F3(function (a,b,c) {    return {position: a,stack: b,steps: c};});
-   var rules = $Dict.fromList(_U.list([{ctor: "_Tuple2",_0: "0",_1: "1[0]0"},{ctor: "_Tuple2",_0: "1",_1: "11"}]));
-   var mapper = function (chr) {    var _p13 = A2($Dict.get,chr,rules);if (_p13.ctor === "Just") {    return _p13._0;} else {    return "";}};
-   var expand = function (input) {
-      var inputList = A2($String.split,"",input);
-      var mappedList = A2($List.map,mapper,inputList);
-      return A2($String.join,"",mappedList);
-   };
-   var expand_times = F2(function (d,input) {
-      expand_times: while (true) {
-         var _p14 = d;
-         if (_p14 === 0) {
-               return input;
-            } else {
-               var _v7 = d - 1,_v8 = expand(A2($Debug.log,"intermediate",input));
-               d = _v7;
-               input = _v8;
-               continue expand_times;
-            }
-      }
-   });
-   var command_list = A3($List.foldl,
-   F2(function (actions,acc) {    return A2($List.append,actions,acc);}),
-   _U.list([]),
-   A2($List.map,mapCharToAction,A2($String.split,"",A2(expand_times,3,"0"))));
-   var main = $Turtle.animate(function (_) {    return _.steps;}(reduce(command_list)));
-   return _elm.Main.values = {_op: _op
+   var rules = $LSysConfig.rules;
+   var constants = $LSysConfig.constants;
+   var axiom = $LSysConfig.axiom;
+   var build = $LSysConfig.build;
+   return _elm.LSys.values = {_op: _op
+                             ,build: build
+                             ,axiom: axiom
+                             ,constants: constants
                              ,rules: rules
-                             ,mapper: mapper
-                             ,expand: expand
-                             ,expand_times: expand_times
-                             ,State: State
+                             ,actions: actions
+                             ,iterate: iterate
                              ,Forward: Forward
                              ,Left: Left
                              ,Right: Right
                              ,Pop: Pop
-                             ,Push: Push
-                             ,back: back
-                             ,newPose: newPose
-                             ,newDirection: newDirection
-                             ,action: action
-                             ,initState: initState
-                             ,command_list: command_list
-                             ,reduce: reduce
-                             ,mapCharToAction: mapCharToAction
-                             ,main: main};
+                             ,Push: Push};
+};
+Elm.Main = Elm.Main || {};
+Elm.Main.make = function (_elm) {
+   "use strict";
+   _elm.Main = _elm.Main || {};
+   if (_elm.Main.values) return _elm.Main.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $LSys = Elm.LSys.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $Turtle = Elm.Turtle.make(_elm);
+   var _op = {};
+   var lsys = A2($LSys.iterate,
+   2,
+   A2($LSys.actions,
+   _U.list([{ctor: "_Tuple2",_0: "0",_1: _U.list([$LSys.Forward])}
+           ,{ctor: "_Tuple2",_0: "1",_1: _U.list([$LSys.Forward])}
+           ,{ctor: "_Tuple2",_0: "[",_1: _U.list([$LSys.Push,$LSys.Right])}
+           ,{ctor: "_Tuple2",_0: "]",_1: _U.list([$LSys.Pop,$LSys.Left])}]),
+   A2($LSys.rules,
+   _U.list([{ctor: "_Tuple2",_0: "1",_1: "11"},{ctor: "_Tuple2",_0: "0",_1: "1[0]0"}]),
+   A2($LSys.constants,_U.list(["[","]"]),A2($LSys.axiom,"0",$LSys.build)))));
+   var main = $Turtle.animate(lsys);
+   return _elm.Main.values = {_op: _op,lsys: lsys,main: main};
 };
