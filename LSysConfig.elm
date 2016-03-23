@@ -1,19 +1,16 @@
-module LSysConfig (LSysConfig, build, axiom, constants, rules) where
+module LSysConfig (LSysConfig, build, axiom, constants, rules, actions) where
 import Turtle exposing (Step)
 
 type alias Rule = (String, String)
 
--- type Command =
---   Forward | Left | Right | Pop | Push
-
-type alias LSysConfig a =
+type alias LSysConfig c =
   { axiom : String
   , constants : List String
   , rules : List Rule
-  , actions : List (String, List a)
+  , actions : List (String, List c)
   }
 
-build : LSysConfig a
+build : LSysConfig c
 build =
   { axiom = ""
   , constants = []
@@ -21,18 +18,18 @@ build =
   , actions = []
   }
 
-axiom : String -> LSysConfig a -> LSysConfig a
+axiom : String -> LSysConfig c -> LSysConfig c
 axiom str config =
   { config | axiom = str }
 
-constants : List String -> LSysConfig a -> LSysConfig a
+constants : List String -> LSysConfig c -> LSysConfig c
 constants list config =
   { config | constants = config.constants ++ list }
 
-rules : List Rule -> LSysConfig a -> LSysConfig a
+rules : List Rule -> LSysConfig c -> LSysConfig c
 rules list config =
   { config | rules = config.rules ++ list }
 
--- actions : List (String, List Command) -> LSysConfig -> LSysConfig
--- actions list config =
---   { config | actions = config.actions ++ list }
+actions : List (String, List c) -> LSysConfig c -> LSysConfig c
+actions list config =
+  { config | actions = config.actions ++ list }

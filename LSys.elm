@@ -2,7 +2,6 @@ module LSys (Command(..), build, axiom, constants, rules, actions, iterate) wher
 
 import Turtle exposing (forward, left, right, penUp, penDown, Step)
 import Turtle.Advanced exposing (teleport, rotateTo)
-import Dict
 import String
 import Graphics.Element exposing (show)
 import Debug
@@ -15,15 +14,12 @@ build = LSysConfig.build
 axiom = LSysConfig.axiom
 constants = LSysConfig.constants
 rules = LSysConfig.rules
+actions = LSysConfig.actions
 
 type Command =
   Forward | Left | Right | Pop | Push
 
 type alias C = Command
-
-actions : List (String, List C) -> LSysConfig C -> LSysConfig C
-actions list config =
-  { config | actions = config.actions ++ list }
 
 iterate : Int -> LSysConfig C -> List Step
 iterate times config =
@@ -80,7 +76,7 @@ type alias State = {
 back : State -> State
 back state =
   case state.stack of
-    [] -> state -- Debug.crash "Failed."
+    [] -> state
     hd :: tl ->
       let
         (x, y, angle) = hd
@@ -132,7 +128,7 @@ initState = {
 reduce cl =
   List.foldl (\c acc -> action c acc) initState cl
 
-mapCharToAction : LSysConfig C -> String -> List Command
+mapCharToAction : LSysConfig C -> String -> List C
 mapCharToAction config chr =
   let
     dict = fromList config.actions

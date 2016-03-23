@@ -10,6 +10,6 @@ lsys = build
     , ("[",  [Push, Right])
     , ("]",  [Pop, Left])
     ]
-  |> iterate 3
+  |> iterate 4
 
 main = animate lsys
