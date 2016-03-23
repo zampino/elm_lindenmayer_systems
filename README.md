@@ -26,5 +26,7 @@ lsys = build
 main = animate lsys
 ```
 
+and, no we didn't look up the solution ahead [here](http://theburningmonk.com/2015/10/elm-fun-with-l-system-part-1/) :-)
+
 # Todos
 - [ ] allow `Right` and `Left` types to accept a float degree param
